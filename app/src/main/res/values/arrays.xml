@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ocr_source_entries">
+        <item>自动（推荐：无障碍文本 → 本地OCR → 视觉大模型）</item>
+        <item>仅无障碍文本（最快，无需截图）</item>
+        <item>仅本地 OCR（ML Kit，离线）</item>
+        <item>仅视觉大模型（直接发图给多模态模型）</item>
+        <item>视觉优先（默认：截图发给大模型，读不到就改用无障碍文本）</item>
+    </string-array>
+
+    <string-array name="shot_source_entries">
+        <item>自动（Shizuku 优先，其次屏幕录制）</item>
+        <item>仅 Shizuku（screencap）</item>
+        <item>仅屏幕录制（MediaProjection）</item>
+    </string-array>
+
+    <string-array name="click_source_entries">
+        <item>自动（无障碍点击 → Shizuku 点击 → 手势）</item>
+        <item>仅无障碍节点点击</item>
+        <item>仅 Shizuku（input tap）</item>
+        <item>仅手势（dispatchGesture）</item>
+    </string-array>
+
+    <!-- 思考程度。位置就是值：0 = 一个字段都不发，1/2/3 = low/medium/high -->
+    <string-array name="effort_entries">
+        <item>不传（默认，兼容所有服务端）</item>
+        <item>low（快，弱一点的思考）</item>
+        <item>medium（中等）</item>
+        <item>high（最准，最慢最贵）</item>
+    </string-array>
+
+    <string-array name="bubble_pos_entries">
+        <item>左上角</item>
+        <item>右上角</item>
+        <item>左下角</item>
+        <item>右下角</item>
+        <item>屏幕正中</item>
+        <item>自定义（用下面的 X% / Y%）</item>
+    </string-array>
+</resources>

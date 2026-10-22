@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--
+        无障碍被系统关掉之后，App 靠这条权限自己把它重新打开（见 FloatingService.tryHealA11y）。
+        它是 signature|privileged|development 级、不会自动授予，得电脑上敲一次：
+            adb shell pm grant com.moling.quizhelper android.permission.WRITE_SECURE_SETTINGS
+        给上就一直在（重启手机也不掉）；没给的话那条路会安静地失败，退回 Shizuku。
+    -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.QuizHelper">
+
+        <!--
+          三个界面都锁竖屏：主界面的「状态卡 + 日志列表」是竖着排的，
+          横屏时可用高度只剩一半，卡片会把日志列表挤成 0 高（字放大时同理）。
+          真正在别的 App 上用的悬浮球不受影响。
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".LogDetailActivity"
+            android:exported="false"
+            android:label="@string/log_detail"
+            android:screenOrientation="portrait" />
+
+        <!--
+          全屏日志**故意不锁竖屏**（其他界面都锁）：无障碍、大模型那些行本来就长，
+          竖屏一行要折三次，横过来才看得成行。configChanges 自己扛住旋转，
+          免得一转屏就重建、把滚到一半的位置丢了。
+        -->
+        <activity
+            android:name=".LogFullActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:label="@string/log_full"
+            android:screenOrientation="sensor" />
+
+        <service
+            android:name=".FloatingService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="quiz-assistant: floating answer button and screen capture overlay" />
+        </service>
+
+        <service
+            android:name=".QuizAccessibilityService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_config" />
+        </service>
+
+        <!-- 遥控口：adb shell am broadcast -a com.moling.quizhelper.{DUMP,ASK,STOP,PREF} -->
+        <receiver
+            android:name=".DumpReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.moling.quizhelper.DUMP" />
+                <action android:name="com.moling.quizhelper.ASK" />
+                <action android:name="com.moling.quizhelper.STOP" />
+                <action android:name="com.moling.quizhelper.PREF" />
+                <action android:name="com.moling.quizhelper.TAP" />
+                <action android:name="com.moling.quizhelper.PAUSE" />
+                <action android:name="com.moling.quizhelper.RESUME" />
+                <action android:name="com.moling.quizhelper.TEXT" />
+                <action android:name="com.moling.quizhelper.START" />
+                <action android:name="com.moling.quizhelper.STATE" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    </application>
+</manifest>

@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>AI助手</title>
+<!--
+  宣传页：6 个镜头自动轮播，直接录屏就是视频。
+  快捷键：→ / 空格 下一个镜头，← 上一个，P 暂停。
+  也可以 ?s=3 直接停在某个镜头上（做单帧用），此时不自动播放。
+-->
+<style>
+  :root {
+    --paper: #f2f4f6;
+    --ink: #12171d;
+    --ink-soft: #6b7684;
+    --accent: #2f6bff;
+    --ok: #2e9e63;
+    --idle: #8b949e;
+    --err: #d6473a;
+    --sans: "HarmonyOS Sans SC", "MiSans", "PingFang SC", "Noto Sans SC",
+            "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    --dur: 4.6s;               /* 一个镜头停留多久 */
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--paper);
+  }
+
+  body {
+    display: grid;
+    place-items: center;
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum";
+  }
+
+  /* 舞台：16:9，字号跟着舞台走 —— 1em 永远是舞台宽度的 1%，
+     所以 1920×1080 和 1280×720 上排版一模一样。 */
+  .stage {
+    position: relative;
+    width: min(100vw, 177.78vh);
+    height: min(56.25vw, 100vh);
+    font-size: min(1vw, 1.7778vh);
+    overflow: hidden;
+    background:
+      linear-gradient(to right, rgba(18,23,29,.025) 1px, transparent 1px) 0 0 / 2.5em 2.5em,
+      linear-gradient(to bottom, rgba(18,23,29,.025) 1px, transparent 1px) 0 0 / 2.5em 2.5em,
+      var(--paper);
+  }
+
+  /* 取景框：四个角，只是把画面圈住，不当装饰用 */
+  .frame i {
+    position: absolute;
+    width: 3.2em;
+    height: 3.2em;
+    border-color: rgba(18,23,29,.32);
+    border-style: solid;
+    border-width: 0;
+  }
+  .frame i:nth-child(1) { left: 2.4em;  top: 2.4em;    border-left-width: 1px; border-top-width: 1px; }
+  .frame i:nth-child(2) { right: 2.4em; top: 2.4em;    border-right-width: 1px; border-top-width: 1px; }
+  .frame i:nth-child(3) { left: 2.4em;  bottom: 2.4em; border-left-width: 1px; border-bottom-width: 1px; }
+  .frame i:nth-child(4) { right: 2.4em; bottom: 2.4em; border-right-width: 1px; border-bottom-width: 1px; }
+
+  /* 顶部进度线 = 整段视频的时间轴 */
+  .progress {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: rgba(18,23,29,.06);
+  }
+  .progress i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--ink);
+    opacity: .55;
+  }
+
+  /* 右下角镜头刻度 */
+  .ticks {
+    position: absolute;
+    right: 6.6em;
+    bottom: 3.7em;
+    display: flex;
+    gap: 1.1em;
+  }
+  .ticks i {
+    display: block;
+    width: 2em;
+    height: 2px;
+    background: var(--ink);
+    opacity: .18;
+    transition: opacity .4s, background-color .4s;
+  }
+  .ticks i.on { background: var(--accent); opacity: 1; }
+
+  /* ---------- 镜头 ---------- */
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.2em;
+    padding: 5.5em 8em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .6s ease, visibility 0s linear .6s;
+  }
+  .scene.is-on {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity .6s ease, visibility 0s linear 0s;
+  }
+
+  /* 每块内容自己往上浮一点，按 --d 排队进场 */
+  .r {
+    opacity: 0;
+    transform: translateY(1.6em);
+    transition: opacity .85s cubic-bezier(.2,.7,.2,1),
+                transform .85s cubic-bezier(.2,.7,.2,1);
+    transition-delay: var(--d, 0s);
+  }
+  .scene.is-on .r { opacity: 1; transform: none; }
+
+  h1 {
+    margin: 0;
+    font-size: 5.2em;
+    font-weight: 300;
+    letter-spacing: .02em;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .p {
+    margin: 0;
+    max-width: 34em;
+    font-size: 1.55em;
+    font-weight: 400;
+    line-height: 1.95;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .p.wide { max-width: 44em; }
+
+  .cap {
+    margin: 0;
+    font-size: 1.2em;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  svg { display: block; overflow: visible; }
+
+  .thin  { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+  .hair  { fill: none; stroke: var(--ink); stroke-width: 1; opacity: .22; }
+  .ghost { fill: none; stroke: var(--ink); stroke-width: 1; opacity: .14; }
+
+  /* 线条自己画出来 */
+  .draw {
+    stroke-dasharray: var(--len, 800);
+    stroke-dashoffset: var(--len, 800);
+    transition: stroke-dashoffset 1.25s cubic-bezier(.35,.1,.2,1) .2s;
+  }
+  .scene.is-on .draw { stroke-dashoffset: 0; }
+
+  /* ---------- 镜头 1：悬浮球 ---------- */
+  .orb { width: 30em; height: 30em; }
+  .orb .ring  { fill: rgba(242,244,246,.9); }
+  .orb .arc   { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round;
+                transform-box: view-box; transform-origin: 200px 200px;
+                animation: spin 9s linear infinite; }
+  .orb .ripple{ fill: none; stroke: var(--accent); stroke-width: 1.2; opacity: 0;
+                transform-box: fill-box; transform-origin: center;
+                animation: ripple 3.4s ease-out infinite; }
+  .orb .ripple.two { animation-delay: 1.7s; }
+  .orb .glyph { fill: var(--ink); font-size: 66px; font-weight: 300; letter-spacing: 0; }
+
+  /* ---------- 镜头 2：四步 ---------- */
+  .steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 12em);
+    gap: 6em;
+  }
+  .steps::before {
+    content: "";
+    position: absolute;
+    left: 6em;
+    right: 6em;
+    top: 7.15em;
+    height: 1px;
+    background: rgba(18,23,29,.18);
+  }
+  .steps .runner {
+    position: absolute;
+    left: 6em;
+    top: calc(7.15em - 2.5px);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: .9;
+    animation: travel 4.4s linear infinite;
+  }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 1.7em; }
+  .step svg { width: 6.4em; height: 6.4em; }
+  .step span { font-size: 1.35em; color: var(--ink-soft); letter-spacing: .06em; }
+  .step .scan { animation: scan 2.6s ease-in-out infinite; }
+  .step .ring2 { animation: breathe 2.6s ease-in-out infinite; }
+
+  /* ---------- 镜头 3：四色 ---------- */
+  .states { display: flex; gap: 7em; align-items: flex-start; }
+  .state { display: flex; flex-direction: column; align-items: center; gap: 1.8em; }
+  .state svg { width: 15em; height: 15em; }
+  .state em {
+    font-style: normal;
+    font-size: 1.35em;
+    letter-spacing: .1em;
+    color: var(--ink-soft);
+  }
+  .state .arc { transform-box: view-box; transform-origin: 60px 60px;
+                animation: spin 5s linear infinite; }
+  .state .pulse { transform-box: fill-box; transform-origin: center;
+                  animation: breathe 2.4s ease-in-out infinite; }
+
+  /* ---------- 镜头 4：视觉优先 ---------- */
+  .scene-flow { padding-top: 3em; padding-bottom: 3em; }
+  .flow { width: 62em; height: 26.66em; }
+  .flow text { font-family: var(--sans); }
+  .flow .t      { fill: var(--ink); font-size: 17px; letter-spacing: .04em; }
+  .flow .t-soft { fill: var(--ink-soft); font-size: 13px; }
+  .flow .t-blue { fill: var(--accent); font-size: 17px; letter-spacing: .04em; }
+  .flow .dash   { fill: none; stroke: var(--ink-soft); stroke-width: 1.2; stroke-dasharray: 5 6; }
+  .flow .solid  { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+  .flow .scanbar {
+    stroke: var(--accent);
+    stroke-width: 2;
+    animation: scanwide 2.8s ease-in-out infinite;
+  }
+
+  /* ---------- 镜头 7：两个小图 ---------- */
+  .two-up { display: flex; gap: 8em; align-items: flex-start; }
+  .panel { display: flex; flex-direction: column; align-items: center; gap: 1.8em; width: 28em; }
+  .panel svg { width: 24em; height: 24em; }
+  .panel p { margin: 0; font-size: 1.35em; line-height: 1.85; color: var(--ink-soft); text-align: center; }
+  .panel .qmark { fill: var(--accent); font-size: 26px; font-weight: 300; }
+  .panel .opt { fill: var(--ink); font-size: 11px; letter-spacing: .04em; }
+  .panel .opt-off { fill: var(--ink-soft); font-size: 11px; opacity: .55; }
+
+  /* ---------- 截图：真机屏 ---------- */
+  .shot {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5em;
+  }
+  .shot img {
+    display: block;
+    width: 15em;
+    height: 26em;
+    object-fit: cover;
+    object-position: top;
+    border: 1px solid rgba(18,23,29,.3);
+    background: #fff;
+  }
+  .shot figcaption {
+    font-size: 1.15em;
+    color: var(--ink-soft);
+    letter-spacing: .02em;
+  }
+  .shots { display: flex; gap: 4.5em; align-items: flex-start; }
+
+  /* ---------- 镜头 5：大模型 API ---------- */
+  .api { display: flex; gap: 6em; align-items: center; }
+  .api .shot img { width: 27em; height: auto; }
+  .api-side { display: flex; flex-direction: column; gap: 2.2em; width: 27em; }
+  .api-box {
+    border: 1px solid rgba(18,23,29,.35);
+    padding: 2.2em 2.4em 2.4em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+  }
+  .api-box .lb { font-size: 1.1em; color: var(--ink-soft); letter-spacing: .08em; }
+  .api-box code {
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 1.2em;
+    line-height: 1.75;
+    color: var(--ink);
+    white-space: pre;
+  }
+  .api-note { margin: 0; font-size: 1.3em; line-height: 1.85; color: var(--ink-soft); }
+
+  /* ---------- 镜头 8：收尾 ---------- */
+  .wordmark { display: flex; align-items: center; gap: 3.2em; }
+  .wordmark svg { width: 12em; height: 12em; }
+  .wordmark strong { font-size: 8.4em; font-weight: 300; letter-spacing: .08em; }
+  .rule { width: 10em; height: 1px; background: rgba(18,23,29,.3); }
+
+  /* ---------- 动效 ---------- */
+
+  @keyframes spin   { to { transform: rotate(360deg); } }
+  @keyframes ripple { 0% { transform: scale(.78); opacity: .3; }
+                      70% { opacity: .08; }
+                      100% { transform: scale(1.55); opacity: 0; } }
+  @keyframes scan   { 0%, 100% { transform: translateY(-13px); }
+                      50%      { transform: translateY(13px); } }
+  @keyframes scanwide { 0%, 100% { transform: translateY(-118px); }
+                        50%      { transform: translateY(118px); } }
+  @keyframes breathe { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+  @keyframes travel { 0% { transform: translateX(0); opacity: 0; }
+                      8% { opacity: .9; }
+                      92% { opacity: .9; }
+                      100% { transform: translateX(54em); opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition-duration: .01ms !important; }
+  }
+
+  /* 竖屏只求能看：不追求 16:9 取景 */
+  @media (orientation: portrait) {
+    .stage { width: 100vw; height: 100vh; font-size: min(2vw, 0.9vh); }
+    .scene, .scene-flow { padding: 7em 4em; gap: 1.8em; }
+    h1 { font-size: 3em; }
+    .p, .p.wide { font-size: 1.5em; max-width: 34em; }
+    .cap { font-size: 1.15em; }
+
+    .orb { width: 24em; height: 24em; }
+
+    .steps { grid-template-columns: repeat(4, 8em); gap: 2em; }
+    .steps::before, .steps .runner { display: none; }
+    .step svg { width: 6em; height: 6em; }
+    .step span { font-size: 1.15em; }
+
+    .states { gap: 2.4em 3em; flex-wrap: wrap; justify-content: center; max-width: 30em; }
+    .state svg { width: 10em; height: 10em; }
+    .state em { font-size: 1.15em; }
+
+    .flow { width: 40em; height: 17.2em; }
+
+    .two-up { flex-direction: column; gap: 3.2em; }
+    .panel { width: 26em; }
+    .panel svg { width: 20em; height: 20em; }
+    .panel p { font-size: 1.15em; }
+
+    .shots { gap: 2.4em; flex-wrap: wrap; justify-content: center; }
+    .shot img { width: 13em; height: 21em; }
+    .shot figcaption { font-size: 1.05em; }
+
+    .api { flex-direction: column; gap: 2.8em; }
+    .api .shot img { width: 30em; height: auto; }
+    .api-side { width: 100%; max-width: 30em; }
+    .api-box { padding: 1.8em 1.9em 2em; }
+    .api-box code { font-size: 1.05em; }
+    .api-note { font-size: 1.2em; }
+
+    .wordmark { flex-direction: column; gap: 2em; }
+    .wordmark svg { width: 9em; height: 9em; }
+    .wordmark strong { font-size: 5.6em; }
+    .rule { width: 8em; }
+
+    .ticks { right: 5.4em; bottom: 3em; }
+  }
+</style>
+</head>
+
+<body>
+<main class="stage" id="stage">
+  <div class="progress"><i id="prog"></i></div>
+  <div class="frame"><i></i><i></i><i></i><i></i></div>
+
+  <!-- 1 ─ 悬浮球 -->
+  <section class="scene is-on" aria-label="悬浮球">
+    <svg class="orb r" viewBox="0 0 400 400" role="img" aria-label="悬浮球停在屏幕边上">
+      <line class="hair" x1="200" y1="10" x2="200" y2="390"/>
+      <line class="hair" x1="10" y1="200" x2="390" y2="200"/>
+      <circle class="ripple" cx="200" cy="200" r="118"/>
+      <circle class="ripple two" cx="200" cy="200" r="118"/>
+      <circle class="thin ring draw" cx="200" cy="200" r="118" style="--len:741"/>
+      <path class="arc" d="M 200 82 A 118 118 0 0 1 318 200"/>
+      <text class="glyph" x="200" y="200" text-anchor="middle" dominant-baseline="central">答</text>
+    </svg>
+    <h1 class="r" style="--d:.12s">看一题，详解一题。</h1>
+    <p class="p wide r" style="--d:.24s">
+      搜停在屏幕边上。点一下，读题、出详解。帮助你节省切屏问AI的时间
+    </p>
+  </section>
+
+  <!-- 2 ─ 四步 -->
+  <section class="scene" aria-label="四步">
+    <h1 class="r">运行逻辑</h1>
+
+    <div class="steps r" style="--d:.12s">
+      <span class="runner"></span>
+
+      <div class="step">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <rect class="thin" x="17" y="7" width="30" height="50"/>
+          <line class="hair" x1="23" y1="18" x2="41" y2="18"/>
+          <line class="hair" x1="23" y1="25" x2="36" y2="25"/>
+          <line class="hair" x1="23" y1="32" x2="39" y2="32"/>
+          <line class="hair" x1="23" y1="39" x2="33" y2="39"/>
+          <line class="scan" x1="12" y1="32" x2="52" y2="32"
+                stroke="var(--accent)" stroke-width="1.6"/>
+        </svg>
+        <span>读屏</span>
+      </div>
+
+      <div class="step">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle class="thin" cx="32" cy="32" r="21"/>
+          <text x="32" y="33" text-anchor="middle" dominant-baseline="central"
+                fill="var(--ink)" font-size="17" font-weight="300">C</text>
+        </svg>
+        <span>搜索</span>
+      </div>
+
+      <div class="step">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle class="ring2" cx="32" cy="32" r="19" fill="none"
+                  stroke="var(--accent)" stroke-width="1.2"/>
+          <circle class="thin" cx="32" cy="32" r="9"/>
+          <circle cx="32" cy="32" r="3.4" fill="var(--accent)"/>
+        </svg>
+        <span>详解</span>
+      </div>
+
+      <div class="step">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path class="thin" d="M23 16 L41 32 L23 48"/>
+          <line class="hair" x1="12" y1="32" x2="47" y2="32"/>
+        </svg>
+        <span>(____)</span>
+      </div>
+    </div>
+
+    <p class="p r" style="--d:.24s">
+      (部分)支持自动(______)<br>
+    </p>
+  </section>
+
+  <!-- 3 ─ 四色 -->
+  <section class="scene" aria-label="四种颜色">
+    <h1 class="r">悬浮窗 状态与开启 </h1>
+
+    <div class="states r" style="--d:.12s">
+      <div class="state">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="draw" cx="60" cy="60" r="45" fill="rgba(46,158,99,.1)"
+                  stroke="var(--ok)" stroke-width="2" style="--len:283"/>
+          <circle class="pulse" cx="60" cy="60" r="7" fill="var(--ok)"/>
+        </svg>
+        <em>待启动</em>
+      </div>
+
+      <div class="state">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="draw" cx="60" cy="60" r="45" fill="rgba(47,107,255,.1)"
+                  stroke="var(--accent)" stroke-width="2" style="--len:283"/>
+          <path class="arc" d="M 60 18 A 42 42 0 0 1 102 60" fill="none"
+                stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+        <em>正在帮您搜索</em>
+      </div>
+
+      <div class="state">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="draw" cx="60" cy="60" r="45" fill="rgba(139,148,158,.1)"
+                  stroke="var(--idle)" stroke-width="2" style="--len:283"/>
+          <line x1="53" y1="50" x2="53" y2="70" stroke="var(--idle)" stroke-width="2.4"/>
+          <line x1="67" y1="50" x2="67" y2="70" stroke="var(--idle)" stroke-width="2.4"/>
+        </svg>
+        <em>暂停</em>
+      </div>
+
+      <div class="state">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="draw" cx="60" cy="60" r="45" fill="rgba(214,71,58,.08)"
+                  stroke="var(--err)" stroke-width="2" style="--len:283"/>
+          <line x1="51" y1="51" x2="69" y2="69" stroke="var(--err)" stroke-width="2.2"/>
+          <line x1="69" y1="51" x2="51" y2="69" stroke="var(--err)" stroke-width="2.2"/>
+        </svg>
+        <em>WRONG</em>
+      </div>
+    </div>
+
+    <p class="p r" style="--d:.24s">
+      操作:默认灰色，点击开始识屏详解<br>
+      长按暂停
+      (仅供参考 ->颜色)
+    </p>
+  </section>
+
+  <!-- 4 ─ 视觉优先 -->
+  <section class="scene scene-flow" aria-label="视觉优先">
+    <h1 class="r">识别原理</h1>
+
+    <svg class="flow r" style="--d:.12s" viewBox="0 48 800 344" aria-hidden="true">
+      <!-- 截图 -->
+      <rect class="thin" x="30" y="80" width="180" height="260" fill="var(--paper)"/>
+      <line class="hair" x1="52" y1="118" x2="188" y2="118"/>
+      <line class="hair" x1="52" y1="138" x2="160" y2="138"/>
+      <line class="hair" x1="52" y1="190" x2="188" y2="190"/>
+      <line class="hair" x1="52" y1="212" x2="170" y2="212"/>
+      <line class="hair" x1="52" y1="234" x2="184" y2="234"/>
+      <!-- 圈出来的答案 -->
+      <circle cx="72" cy="280" r="13" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+      <text x="72" y="281" text-anchor="middle" dominant-baseline="central"
+            fill="var(--accent)" font-size="13">C</text>
+      <line class="hair" x1="94" y1="280" x2="170" y2="280"/>
+      <rect class="scanbar" x="34" y="210" width="172" height="1" opacity=".55"/>
+      <text class="t-soft" x="30" y="372">截图</text>
+
+      <!-- 主路：视觉大模型 -->
+      <path class="solid" d="M 214 190 L 400 128" marker-end="url(#arrow)"/>
+      <rect class="thin" x="415" y="64" width="340" height="118" fill="var(--paper)"/>
+      <text class="t-blue" x="442" y="106">视觉大模型</text>
+      <text class="t-soft" x="442" y="138">题干和选项一起看</text>
+
+      <!-- 退路：无障碍文本 -->
+      <path class="dash" d="M 214 236 L 400 300"/>
+      <path class="dash" d="M 388 300 L 412 300" stroke="var(--ink-soft)"/>
+      <rect class="thin" x="415" y="242" width="340" height="118" fill="var(--paper)"/>
+      <text class="t" x="442" y="284">无障碍文本</text>
+      <text class="t-soft" x="442" y="316">读控件树，不截图(省token)</text>
+      <text class="t-soft" x="300" y="306" text-anchor="middle" fill="var(--accent)">读不到就换</text>
+
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <p class="p r" style="--d:.24s">
+      若无法截图->跳转无障碍读取(备选OCR)，<br>
+    </p>
+  </section>
+
+  <!-- 5 ─ 大模型 API -->
+  <section class="scene" aria-label="大模型 API">
+    <h1 class="r">大模型回答</h1>
+
+    <div class="api r" style="--d:.12s">
+      <figure class="shot">
+        <img src="promo_img/settings.png" alt="设置页：API Key、Base URL、模型名三个输入框">
+        <figcaption>Key / Base URL / 模型名</figcaption>
+      </figure>
+
+      <div class="api-side">
+        <div class="api-box">
+          <span class="lb">需要API才可以使用!</span>
+          <code>{"应该选择": "__",
+ "详解": "…"}</code>
+        </div>
+        <p class="api-note">
+          OpenAI 兼容接口<br>
+        </p>
+      </div>
+    </div>
+
+    <p class="p r" style="--d:.24s">
+    </p>
+  </section>
+
+  <!-- 6 ─ 真机截图 -->
+  <section class="scene" aria-label="真机截图">
+    <h1 class="r">运行截图</h1>
+
+    <div class="shots r" style="--d:.12s">
+      <figure class="shot">
+        <img src="promo_img/bubble.png" alt="答题页上方的答案气泡，选项 E 已被点中">
+        <figcaption>气泡：(_____) + 一句解析</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="promo_img/single.png" alt="单选题，选项 D 被点中">
+        <figcaption>单选支持</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="promo_img/multi.png" alt="多选题，A C D 三个选项同时被点中">
+        <figcaption>多选也支持 </figcaption>
+      </figure>
+    </div>
+
+    <p class="p r" style="--d:.24s">
+      目前仅测试了___通和B______
+    </p>
+  </section>
+
+  <!-- 8 ─ 收尾 -->
+  <section class="scene" aria-label="AI助手">
+    <div class="wordmark r">
+      <svg viewBox="13 13 94 94" aria-hidden="true">
+        <circle class="thin" cx="60" cy="60" r="34"/>
+        <path class="arc" d="M 60 26 A 34 34 0 0 1 94 60" fill="none"
+              stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round"/>
+        <text x="60" y="60" text-anchor="middle" dominant-baseline="central"
+              fill="var(--ink)" font-size="20" font-weight="300">答</text>
+      </svg>
+      <strong>AI助手</strong>
+    </div>
+
+    <div class="rule r" style="--d:.18s"></div>
+
+    <p class="p r" style="--d:.24s">
+      只要悬浮窗和无障碍两个权限(无障碍是干嘛的呢?好难猜啊)<br>
+      纯AI生成的软件(和宣传页
+    </p>
+  </section>
+
+  <nav class="ticks" id="ticks" aria-hidden="true"></nav>
+</main>
+
+<script>
+  (function () {
+    const DURATION = 4600;                  // 跟 CSS 里的 --dur 保持一致
+    const scenes = Array.from(document.querySelectorAll('.scene'));
+    const ticks = document.getElementById('ticks');
+    const prog = document.getElementById('prog');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    scenes.forEach((_, i) => {
+      const t = document.createElement('i');
+      if (i === 0) t.className = 'on';
+      ticks.appendChild(t);
+    });
+    const marks = Array.from(ticks.children);
+
+    let cur = 0;
+    let timer = null;
+
+    // ?s=3 → 直接停在第三个镜头（做单帧截图用），不自动播
+    const param = new URLSearchParams(location.search).get('s');
+    const fixed = param !== null && !isNaN(+param);
+
+    function show(i, runProgress) {
+      cur = (i + scenes.length) % scenes.length;
+
+      scenes.forEach((s, k) => s.classList.toggle('is-on', k === cur));
+      marks.forEach((m, k) => m.classList.toggle('on', k === cur));
+
+      // 进度线从「这一镜头的起点」长到终点；换镜头时不倒回去，整条时间轴一直往前
+      prog.style.transition = 'none';
+      prog.style.width = (cur / scenes.length * 100) + '%';
+      void prog.offsetWidth;                // 让上面那一下立刻生效，别被后面的过渡吃掉
+      if (runProgress) {
+        prog.style.transition = 'width ' + DURATION + 'ms linear';
+        prog.style.width = ((cur + 1) / scenes.length * 100) + '%';
+      } else {
+        prog.style.width = ((cur + 1) / scenes.length * 100) + '%';
+      }
+    }
+
+    function next() { show(cur + 1, true); schedule(); }
+    function prev() { show(cur - 1, false); schedule(); }
+
+    function schedule() {
+      clearTimeout(timer);
+      if (fixed) return;                    // ?s=N 是冻帧模式，不自己往下走
+      timer = setTimeout(next, DURATION);
+    }
+
+    function go(i) { show(i, true); schedule(); }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault(); go(cur + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault(); go(cur - 1);
+      } else if (e.key === 'p' || e.key === 'P') {
+        if (timer) { clearTimeout(timer); timer = null; } else { schedule(); }
+      }
+    });
+
+    // 点一下也是下一个镜头 —— 录屏时不用碰键盘
+    document.getElementById('stage').addEventListener('click', () => go(cur + 1));
+
+    // 切走标签页就别自己往下跑了，回来接着走
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { clearTimeout(timer); timer = null; }
+      else schedule();
+    });
+
+    show(fixed ? Math.min(Math.max(+param, 1), scenes.length) - 1 : 0, !reduce);
+    schedule();
+  })();
+</script>
+</body>
+</html>

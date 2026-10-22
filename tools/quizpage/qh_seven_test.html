@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 标题别印答案：mark.via 会把 title 渲染进页头，模型一眼看到整页答案，
+     就绕过了「自己读题」这条路，测不出真本事。答案只留在下面这行注释里。 -->
+<title>一页七题 随堂练习</title>
+<style>
+  /* 故意排得紧凑：一屏能塞下好几题，正好验「按题号一组一组地点」。
+     标准答案（从上往下）：A、BC、A、C、D、ABCD、AC */
+  html { -webkit-text-size-adjust: none; text-size-adjust: none; }
+  body { margin: 0; padding: 10px; font: 24px/1.45 sans-serif; background: #f6f6f6; }
+  .q { margin-bottom: 18px; }
+  .stem { font-weight: bold; margin: 8px 0; }
+  .opt { display: block; padding: 10px 12px; margin: 6px 0;
+         background: #fff; border: 2px solid #ccc; border-radius: 8px; }
+  .opt.done { background: #b7f0b7; border-color: #2e7d32; }
+</style>
+</head>
+<body>
+<div class="q">
+  <div class="stem">1. 中国的首都是？（单选题）</div>
+  <div class="opt" onclick="pick(this)">A. 北京</div>
+  <div class="opt" onclick="pick(this)">B. 上海</div>
+  <div class="opt" onclick="pick(this)">C. 广州</div>
+  <div class="opt" onclick="pick(this)">D. 深圳</div>
+</div>
+<div class="q">
+  <div class="stem">2. 下列哪些是偶数？（多选题）</div>
+  <div class="opt" onclick="pick(this)">A. 3</div>
+  <div class="opt" onclick="pick(this)">B. 4</div>
+  <div class="opt" onclick="pick(this)">C. 6</div>
+  <div class="opt" onclick="pick(this)">D. 7</div>
+</div>
+<div class="q">
+  <div class="stem">3. 水的化学式是？（单选题）</div>
+  <div class="opt" onclick="pick(this)">A. H2O</div>
+  <div class="opt" onclick="pick(this)">B. CO2</div>
+  <div class="opt" onclick="pick(this)">C. O2</div>
+  <div class="opt" onclick="pick(this)">D. NaCl</div>
+</div>
+<div class="q">
+  <div class="stem">4. 一年有多少个月？（单选题）</div>
+  <div class="opt" onclick="pick(this)">A. 10</div>
+  <div class="opt" onclick="pick(this)">B. 11</div>
+  <div class="opt" onclick="pick(this)">C. 12</div>
+  <div class="opt" onclick="pick(this)">D. 13</div>
+</div>
+<div class="q">
+  <div class="stem">5. 太阳从哪个方向升起？（单选题）</div>
+  <div class="opt" onclick="pick(this)">A. 北</div>
+  <div class="opt" onclick="pick(this)">B. 南</div>
+  <div class="opt" onclick="pick(this)">C. 西</div>
+  <div class="opt" onclick="pick(this)">D. 东</div>
+</div>
+<div class="q">
+  <div class="stem">6. 下列哪些属于哺乳动物？（多选题）</div>
+  <div class="opt" onclick="pick(this)">A. 狗</div>
+  <div class="opt" onclick="pick(this)">B. 猫</div>
+  <div class="opt" onclick="pick(this)">C. 鲸</div>
+  <div class="opt" onclick="pick(this)">D. 蝙蝠</div>
+</div>
+<div class="q">
+  <div class="stem">7. 下列哪些是质数？（多选题）</div>
+  <div class="opt" onclick="pick(this)">A. 2</div>
+  <div class="opt" onclick="pick(this)">B. 4</div>
+  <div class="opt" onclick="pick(this)">C. 7</div>
+  <div class="opt" onclick="pick(this)">D. 9</div>
+</div>
+<script>
+// 选中状态同时写进文字里：无障碍树里能直接看到「✓」，
+// 不必靠截图判断点没点上。
+function pick(el) {
+  var on = el.classList.toggle('done');
+  var t = el.textContent.replace(/ ✓$/,'');
+  el.textContent = on ? (t + ' ✓') : t;
+}
+</script>
+</body>
+</html>

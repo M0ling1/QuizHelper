@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <!-- ① 大模型 -->
+            <LinearLayout style="@style/Card">
+
+                <TextView style="@style/CardTitle" android:text="① 大模型" />
+
+                <TextView style="@style/Hint"
+                    android:text="OpenAI 兼容接口。DeepSeek 填 https://api.deepseek.com" />
+
+                <TextView style="@style/Label" android:text="API Key" />
+                <EditText
+                    android:id="@+id/etApiKey"
+                    style="@style/Field"
+                    android:hint="sk-..."
+                    android:inputType="textPassword"
+                    android:importantForAutofill="no" />
+
+                <TextView style="@style/Label" android:text="Base URL" />
+                <EditText
+                    android:id="@+id/etBaseUrl"
+                    style="@style/Field"
+                    android:hint="https://api.deepseek.com"
+                    android:inputType="textUri" />
+
+                <TextView style="@style/Label" android:text="模型" />
+                <EditText
+                    android:id="@+id/etModel"
+                    style="@style/Field"
+                    android:hint="deepseek-chat"
+                    android:inputType="text" />
+                <TextView style="@style/Hint"
+                    android:text="reasoner 类模型会先写一长段思维链，慢但难题更准；chat 快。思维链把输出额度吃光时，程序会自动换 chat 重问一次。" />
+
+                <TextView style="@style/Label" android:text="思考程度（reasoning_effort）" />
+                <Spinner
+                    android:id="@+id/spEffort"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <TextView style="@style/Hint"
+                    android:text="发给接口的 reasoning_effort 字段。选「不传」时这个字段一个都不发——有些服务端见到不认识的参数会直接 400。只有支持思考程度的模型（DeepSeek、火山、硅基流动等）才需要动它：调高更准但更慢更贵。" />
+
+                <TextView style="@style/Label" android:text="系统提示词" />
+                <!-- 提示词默认挺长，不封顶的话这一张卡片能占掉两屏；封住高度，里面的字自己滚。 -->
+                <EditText
+                    android:id="@+id/etPrompt"
+                    style="@style/Field"
+                    android:gravity="top"
+                    android:minLines="7"
+                    android:maxLines="10"
+                    android:scrollbars="vertical"
+                    android:inputType="textMultiLine|textNoSuggestions" />
+            </LinearLayout>
+
+            <!-- ② 取词与截图 -->
+            <LinearLayout style="@style/Card">
+
+                <TextView style="@style/CardTitle" android:text="② 取词与截图" />
+
+                <TextView style="@style/Label" android:text="文本来源" />
+                <Spinner
+                    android:id="@+id/spOcr"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <TextView style="@style/Hint"
+                    android:text="默认的「视觉优先」：每次答题先把整张截图发给视觉大模型（题干和选项它一眼看全，不受无障碍树漏字影响）；图是黑的、拿不到截图、或者模型没从图里读出题，就自动改用无障碍文本再读一遍。选「仅无障碍文本」最快、还完全不截图。" />
+
+                <Switch
+                    android:id="@+id/swFallbackOcr"
+                    style="@style/Toggle"
+                    android:layout_marginTop="6dp"
+                    android:text="无障碍答不出来时改用截图 OCR" />
+                <TextView style="@style/Hint"
+                    android:text="无障碍读到的字不够、模型回了「？」或者请求失败时，自动拍一张屏、用本地 OCR 重读一遍再问一次。学习通那种只读得到光杆 A/B/C、选项正文压根不进无障碍树的页面，就是靠这条读出来的。" />
+
+                <Switch
+                    android:id="@+id/swFallbackA11y"
+                    style="@style/Toggle"
+                    android:text="截图 OCR 答不出来时改用无障碍" />
+                <TextView style="@style/Hint"
+                    android:text="反过来的兜底：截图这条路失败（禁止截屏、没授权、OCR 认不出）时，换无障碍文本再问一次。两个开关是一对，谁兜谁由上面「文本来源」选的那条路决定。" />
+
+                <View style="@style/Divider" />
+
+                <TextView style="@style/Label" android:text="截图来源（用到本地 OCR / 视觉大模型时才需要）" />
+                <Spinner
+                    android:id="@+id/spShot"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout style="@style/Half">
+                        <TextView style="@style/Label" android:text="顶部裁掉 %" />
+                        <EditText
+                            android:id="@+id/etCropTop"
+                            style="@style/Field"
+                            android:inputType="number" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/Half"
+                        android:layout_marginStart="10dp">
+                        <TextView style="@style/Label" android:text="底部裁掉 %" />
+                        <EditText
+                            android:id="@+id/etCropBottom"
+                            style="@style/Field"
+                            android:inputType="number" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View style="@style/Divider" />
+
+                <TextView style="@style/Label" android:text="视觉大模型（多模态，可选）" />
+                <TextView style="@style/Hint"
+                    android:text="留空就跟着上面的主模型走（同一个 key 吃得下图片就不用填）。模型不认图片会直接报错，助手会把这条记下来、这次运行不再试它，全走无障碍文本。" />
+
+                <EditText
+                    android:id="@+id/etVisionUrl"
+                    style="@style/Field"
+                    android:hint="Base URL，如 https://api.siliconflow.cn/v1"
+                    android:inputType="textUri" />
+                <EditText
+                    android:id="@+id/etVisionKey"
+                    style="@style/Field"
+                    android:layout_marginTop="8dp"
+                    android:hint="API Key"
+                    android:inputType="textPassword"
+                    android:importantForAutofill="no" />
+                <EditText
+                    android:id="@+id/etVisionModel"
+                    style="@style/Field"
+                    android:layout_marginTop="8dp"
+                    android:hint="模型，如 Qwen/Qwen2.5-VL-72B-Instruct"
+                    android:inputType="text" />
+            </LinearLayout>
+
+            <!-- ③ 自动点击 -->
+            <LinearLayout style="@style/Card">
+
+                <TextView style="@style/CardTitle" android:text="③ 自动点击" />
+
+                <TextView style="@style/Label" android:text="选项标签（逗号分隔，按页面印的那套填：A,B,C… 或 ①,②,③… 或 ア,イ,ウ…）" />
+                <EditText
+                    android:id="@+id/etLabels"
+                    style="@style/Field"
+                    android:inputType="text" />
+
+                <TextView style="@style/Label" android:text="「下一题」关键词（逗号或换行分隔，命中即点击）" />
+                <EditText
+                    android:id="@+id/etNextKeywords"
+                    style="@style/Field"
+                    android:gravity="top"
+                    android:minLines="3"
+                    android:inputType="textMultiLine|textNoSuggestions" />
+
+                <TextView style="@style/Label" android:text="点击方式" />
+                <Spinner
+                    android:id="@+id/spClick"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <Switch
+                    android:id="@+id/swAutoClick"
+                    style="@style/Toggle"
+                    android:layout_marginTop="6dp"
+                    android:text="自动点击答案" />
+
+                <Switch
+                    android:id="@+id/swAutoNext"
+                    style="@style/Toggle"
+                    android:text="自动点击「下一题」" />
+                <TextView style="@style/Hint"
+                    android:text="很多答题页点完选项就自己翻页了，那种情况这个开关不用开；开了也只是多一次无害的尝试。" />
+
+                <Switch
+                    android:id="@+id/swAutoScroll"
+                    style="@style/Toggle"
+                    android:text="竖排长卷子自动往下滑" />
+                <TextView style="@style/Hint"
+                    android:text="一页排好多道题的卷子（一页七题那种）：这一屏答完、又找不到「下一题」按钮、页面下面还有内容时，自动往下滑一屏接着答。不滑的话页面原地不动，上面的题会被反复答、下面的题永远轮不到。" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout style="@style/Half">
+                        <TextView style="@style/Label" android:text="下一题延迟（秒）" />
+                        <EditText
+                            android:id="@+id/etNextDelay"
+                            style="@style/Field"
+                            android:inputType="numberDecimal" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/Half"
+                        android:layout_marginStart="10dp">
+                        <TextView style="@style/Label" android:text="选项间间隔（毫秒）" />
+                        <EditText
+                            android:id="@+id/etClickGap"
+                            style="@style/Field"
+                            android:inputType="number" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View style="@style/Divider" />
+
+                <Switch
+                    android:id="@+id/swAutoLoop"
+                    style="@style/Toggle"
+                    android:text="自动连答" />
+                <TextView style="@style/Hint"
+                    android:text="答完一题后隔一会儿自己重新读屏、接着答。有些页面的「下一题」是图标或认不出关键词，光靠上面那个开关会卡在同一页，这个就是兜底。多选题建议 3 秒以上。" />
+
+                <TextView style="@style/Label" android:text="自动连答间隔（秒）" />
+                <EditText
+                    android:id="@+id/etLoopDelay"
+                    style="@style/Field"
+                    android:inputType="numberDecimal" />
+                <TextView style="@style/Hint"
+                    android:text="程序自己认得出「页面没翻」：那就不重答（免得把多选题已选的取消掉），只重点一次选项、或者改用手势点坐标再试。" />
+            </LinearLayout>
+
+            <!-- ④ 填空题 -->
+            <LinearLayout style="@style/Card">
+
+                <TextView style="@style/CardTitle" android:text="④ 填空题" />
+
+                <Switch
+                    android:id="@+id/swFillCopy"
+                    style="@style/Toggle"
+                    android:text="填空题：生成正文并复制到剪贴板" />
+
+                <TextView style="@style/Hint"
+                    android:text="模型认出这是填空题时，会把要作答的正文写成纯文本放进剪贴板：去掉 markdown、去掉 --- 这类分隔线，分段只用 1. 2. 3. 编号。页面上要是还有候选选项，也顺手点一遍。" />
+
+                <Switch
+                    android:id="@+id/swAutoFill"
+                    style="@style/Toggle"
+                    android:text="填空题：自动填进页面空格" />
+
+                <TextView style="@style/Hint"
+                    android:text="按题面顺序把答案逐个填进这一屏空着的输入框：只看完整显示在屏幕上的空，已经有字的不覆盖；一屏里有好几个空、填空题和选择题混着，都按从上到下的顺序来。填完接着答下一题；填不进去时还有上面那条「复制到剪贴板」兜底。" />
+
+                <TextView style="@style/Label" android:text="复制后等待（秒，0 = 暂停回答）" />
+
+                <EditText
+                    android:id="@+id/etFillWait"
+                    style="@style/Field"
+                    android:inputType="number" />
+
+                <TextView style="@style/Hint"
+                    android:text="默认 0：复制完就暂停回答，留时间给你粘贴。填个秒数就改成等这么久再接着答下一题。暂停后点一下悬浮球就继续。" />
+
+                <View style="@style/Divider" />
+
+                <TextView style="@style/Hint"
+                    android:text="启动后球是绿的「待启动」，点一下才开始答题。绿球（待启动）点一下 = 开始答；蓝球（正在答）点一下 = 重读当前屏幕；长按 = 暂停；已经停着（绿球/灰球）或者出错（红球）时长按 = 回本软件主界面。" />
+            </LinearLayout>
+
+            <!-- ⑤ 展示与播报 -->
+            <LinearLayout style="@style/Card">
+
+                <TextView style="@style/CardTitle" android:text="⑤ 展示与播报" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout style="@style/Half">
+                        <TextView style="@style/Label" android:text="状态栏显示（秒）" />
+                        <EditText
+                            android:id="@+id/etNotifSec"
+                            style="@style/Field"
+                            android:inputType="number" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/Half"
+                        android:layout_marginStart="10dp">
+                        <TextView style="@style/Label" android:text="屏幕气泡显示（秒）" />
+                        <EditText
+                            android:id="@+id/etBubbleSec"
+                            style="@style/Field"
+                            android:inputType="number" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/swTts"
+                    style="@style/Toggle"
+                    android:layout_marginTop="6dp"
+                    android:text="语音播报答案" />
+
+                <Switch
+                    android:id="@+id/swTtsExplain"
+                    style="@style/Toggle"
+                    android:text="语音里接着念解析" />
+                <TextView style="@style/Hint"
+                    android:text="念完答案再念一句解析。下一题开始念的时候，上一句会自动掐掉，不会排成一长队等着念完。" />
+
+                <Switch
+                    android:id="@+id/swBubble"
+                    style="@style/Toggle"
+                    android:text="在屏幕上显示答案气泡" />
+
+                <View style="@style/Divider" />
+
+                <Switch
+                    android:id="@+id/swNotifOn"
+                    style="@style/Toggle"
+                    android:text="状态栏弹答案通知" />
+                <TextView style="@style/Hint"
+                    android:text="每答一题在状态栏留一条带解析的通知。不需要就关掉——它弹出时正好压在选项上，会挡住点击，也可能被截屏采进去。关掉不影响气泡和播报。" />
+
+                <Switch
+                    android:id="@+id/swKeepNotif"
+                    style="@style/Toggle"
+                    android:text="保留「悬浮球已就绪」常驻通知" />
+                <TextView style="@style/Hint"
+                    android:text="默认不留：答题时头顶一直挂着一条通知很碍事。关掉之后服务改成普通方式跑（进程由无障碍服务吊着）；要用截图取词时会自动临时打开，系统强制要求前台服务。" />
+
+                <View style="@style/Divider" />
+
+                <TextView style="@style/Label" android:text="解析气泡位置" />
+                <Spinner
+                    android:id="@+id/spBubblePos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView style="@style/Label" android:text="自定义位置（屏幕宽/高的百分比，0~100）" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout style="@style/Half">
+                        <TextView style="@style/Label" android:text="X %" />
+                        <EditText
+                            android:id="@+id/etBubbleX"
+                            style="@style/Field"
+                            android:inputType="number" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/Half"
+                        android:layout_marginStart="10dp">
+                        <TextView style="@style/Label" android:text="Y %" />
+                        <EditText
+                            android:id="@+id/etBubbleY"
+                            style="@style/Field"
+                            android:inputType="number" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView style="@style/Hint"
+                    android:text="上面选「自定义」时才生效。X 会被夹在 0~70，免得气泡飘出右边。气泡是 FLAG_NOT_TOUCHABLE 的——一旦它能接收触摸，盖住的按钮就点不到了，所以用百分比调位置，不做拖动。" />
+
+                <View style="@style/Divider" />
+
+                <TextView style="@style/Label" android:text="悬浮球不透明度（80 ~ 100）" />
+                <EditText
+                    android:id="@+id/etAlpha"
+                    style="@style/Field"
+                    android:inputType="number" />
+                <TextView style="@style/Hint"
+                    android:text="低于 80 会被系统当成不可信窗口，触摸会被拦掉。" />
+
+                <TextView style="@style/Label" android:text="悬浮球静止多久后自动收起（秒）" />
+                <EditText
+                    android:id="@+id/etAutoHide"
+                    style="@style/Field"
+                    android:hint="0 = 不收起"
+                    android:inputType="number" />
+                <TextView style="@style/Hint" android:text="收起后会缩小变淡，点一下恢复。" />
+            </LinearLayout>
+
+            <!-- ⑥ 其它 -->
+            <LinearLayout style="@style/Card">
+
+                <TextView style="@style/CardTitle" android:text="⑥ 其它" />
+
+                <TextView style="@style/Label" android:text="网络超时（秒）" />
+                <EditText
+                    android:id="@+id/etTimeout"
+                    style="@style/Field"
+                    android:inputType="number" />
+                <TextView style="@style/Hint"
+                    android:text="用 reasoner 模型又有难题时，一次要几十秒，别设太小。" />
+
+                <Switch
+                    android:id="@+id/swHideOverlayShot"
+                    style="@style/Toggle"
+                    android:layout_marginTop="6dp"
+                    android:text="截图前隐藏悬浮球（避免拍到自己）" />
+
+                <View style="@style/Divider" />
+
+                <Button
+                    android:id="@+id/btnSelfTest"
+                    style="@style/BtnWide"
+                    android:text="自检：读屏幕文字 + 测 API" />
+
+                <TextView
+                    android:id="@+id/tvSelfTest"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_code"
+                    android:padding="12dp"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="3dp"
+                    android:textIsSelectable="true"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 水印：作者与出处，压在所有卡片下面 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="作者 Mo_ling1"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:alpha="0.7" />
+
+            <TextView
+                android:id="@+id/tvAuthorLink"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="6dp"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="https://space.bilibili.com/363939282"
+                android:textColor="@color/link"
+                android:textSize="11sp"
+                android:alpha="0.85" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 底部操作条：压一条分隔线，视觉上和滚动内容分开 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/card_bg"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btnReset"
+            style="@style/Btn"
+            android:text="恢复默认" />
+
+        <Button
+            android:id="@+id/btnSave"
+            style="@style/Btn"
+            android:layout_weight="1.4"
+            android:layout_marginStart="10dp"
+            android:text="保存" />
+    </LinearLayout>
+</LinearLayout>

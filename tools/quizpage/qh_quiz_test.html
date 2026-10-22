@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一屏两题 测试页</title>
+<style>
+  body { margin: 0; padding: 12px; font: 20px/1.5 sans-serif; background: #f6f6f6; }
+  .q { margin-bottom: 22px; }
+  .stem { font-weight: bold; margin: 10px 0; }
+  .opt {
+    display: block; padding: 16px 14px; margin: 8px 0;
+    background: #fff; border: 2px solid #ccc; border-radius: 10px;
+  }
+  .opt.done { background: #b7f0b7; border-color: #2e7d32; }
+</style>
+</head>
+<body>
+
+<div class="q">
+  <div class="stem">1. 1 + 1 等于几？（单选题）</div>
+  <div class="opt" onclick="pick(this)">A. 1</div>
+  <div class="opt" onclick="pick(this)">B. 2</div>
+  <div class="opt" onclick="pick(this)">C. 3</div>
+  <div class="opt" onclick="pick(this)">D. 4</div>
+</div>
+
+<div class="q">
+  <div class="stem">2. 下面哪些是偶数？（多选题）</div>
+  <div class="opt" onclick="pick(this)">A. 1</div>
+  <div class="opt" onclick="pick(this)">B. 2</div>
+  <div class="opt" onclick="pick(this)">C. 3</div>
+  <div class="opt" onclick="pick(this)">D. 4</div>
+</div>
+
+<script>
+function pick(el) { el.classList.toggle('done'); }
+</script>
+
+</body>
+</html>

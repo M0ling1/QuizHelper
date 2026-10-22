@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.QuizHelper" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand</item>
+        <item name="colorPrimaryDark">@color/brand_dark</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/brand_dark</item>
+        <!-- 让 Switch / CheckBox 的滑块跟着品牌色走 -->
+        <item name="android:colorAccent" tools:targetApi="l">@color/brand</item>
+        <item name="android:colorBackground">@color/page_bg</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:colorForeground">@color/text_primary</item>
+
+        <!--
+          M3 的颜色角色。这一组不写全，深色模式就会退回基线的默认值：
+          按钮底取 colorPrimary（我的品牌蓝），字取 colorOnPrimary（基线的深紫 #381E72），
+          结果是蓝底 + 深紫字，几乎看不清。把角色配成自己的一套就稳了。
+        -->
+        <item name="colorOnPrimary">@color/on_brand</item>
+        <item name="colorPrimaryContainer">@color/brand</item>
+        <item name="colorOnPrimaryContainer">@color/on_brand</item>
+        <item name="colorSecondary">@color/brand</item>
+        <item name="colorOnSecondary">@color/on_brand</item>
+        <item name="colorSurface">@color/card_bg</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/field_bg</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/card_border</item>
+        <item name="colorError">@color/err</item>
+        <item name="colorOnError">@color/on_brand</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+    </style>
+
+    <!--
+      注意：layout_width / layout_height 必须写在样式里。
+      使用这些样式的 View 没有自己写 layout_width，缺了就会在 inflate 时抛
+      "You must supply a layout_width attribute"。
+    -->
+
+    <!-- 一组设置 = 一张卡片 -->
+    <style name="Card">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:padding">14dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+    </style>
+
+    <!-- 卡片标题 -->
+    <style name="CardTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:paddingBottom">6dp</item>
+    </style>
+
+    <!-- 字段名，压在输入框上面 -->
+    <style name="Label">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <!-- 说明文字（不用来看，写给第一次用的人） -->
+    <style name="Hint">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+        <item name="android:paddingTop">4dp</item>
+    </style>
+
+    <!-- 输入框 -->
+    <style name="Field">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:minHeight">46dp</item>
+    </style>
+
+    <!-- 开关行 -->
+    <style name="Toggle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!--
+      并排放几个按钮时用的紧凑样式。M3 的按钮自带 minWidth=88dp、左右各 24dp 内边距，
+      窄屏一行塞三个时「权限授权」「清空日志」这种四字标签会被折成两行。这里把这两项压掉。
+    -->
+    <style name="Btn">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">2dp</item>
+        <item name="android:paddingEnd">2dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/on_brand</item>
+    </style>
+
+    <!-- 整行一个的按钮 -->
+    <style name="BtnWide" parent="Btn">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_weight">0</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- 并排放两个输入框时，每一半的外层容器 -->
+    <style name="Half">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <!-- 卡片之间的分组分隔线 -->
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:background">@color/divider</item>
+    </style>
+</resources>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>半截选项测试：B C D / 下一题题干 / A</title>
+<style>
+  body { margin: 0; padding: 14px; font: 22px/1.8 sans-serif; background: #f6f6f6; }
+  .q { background: #fff; padding: 16px; border-radius: 10px; margin-bottom: 14px; }
+  .opt { border: 2px solid #bbb; border-radius: 8px; padding: 14px; margin: 10px 0; }
+  #q1 .opt.done { background: #123a6b; border-color: #2e6fd8; color: #fff; }
+  #q2 .opt.done { background: #6b3a12; border-color: #d88b2e; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="q" id="q1">
+  <p>1. 半截选项测试：上面这道题只露出 B C D，A 已经滚出屏幕。</p>
+  <div class="opt" onclick="pick(this,'q1')">A. 土豆</div>
+  <div class="opt" onclick="pick(this,'q1')">B. 苹果</div>
+  <div class="opt" onclick="pick(this,'q1')">C. 萝卜</div>
+  <div class="opt" onclick="pick(this,'q1')">D. 白菜</div>
+</div>
+
+<div style="height:200px"></div>
+
+<div class="q" id="q2">
+  <p>2. 下列哪些是双数？</p>
+  <div class="opt" onclick="pick(this,'q2')">A. 3</div>
+  <div class="opt" onclick="pick(this,'q2')">B. 4</div>
+  <div class="opt" onclick="pick(this,'q2')">C. 6</div>
+  <div class="opt" onclick="pick(this,'q2')">D. 7</div>
+</div>
+
+<script>
+function pick(el, q) { el.classList.toggle('done'); }
+
+// 把下一题的 A 摆到屏幕下沿上方，上一题的 B 就落在屏幕顶上（A 滚出去），
+// 正是用户报的「B C D / 下一题题干 / A」那一屏。
+// 用 ?off=NN 微调：正数往下多滚一点。
+(function () {
+  function place() {
+    var m = /[?&]off=(-?\d+)/.exec(location.search);
+    var off = m ? parseInt(m[1], 10) : 0;
+    var a = document.querySelector('#q2 .opt');
+    var H = window.innerHeight;
+    var docY = a.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, Math.max(0, docY - (H - 170) + off));
+  }
+  window.addEventListener('load', function () { place(); setTimeout(place, 300); });
+})();
+</script>
+</body>
+</html>

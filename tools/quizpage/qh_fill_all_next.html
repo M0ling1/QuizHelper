@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>混合第二页：手填空 + 单选</title>
+<style>
+  body { margin: 0; padding: 14px; font: 22px/1.8 sans-serif; background: #f6f6f6; }
+  .q { background: #fff; padding: 16px; border-radius: 10px; margin-bottom: 14px; }
+  input { width: 140px; font-size: 22px; padding: 6px; margin: 4px 8px 4px 0;
+          border: 2px solid #bbb; border-radius: 6px; }
+  .opt { border: 2px solid #bbb; border-radius: 8px; padding: 14px; margin: 10px 0; }
+  .opt.done { background: #173d17; border-color: #2e8b2e; }
+</style>
+</head>
+<body>
+
+<div class="q">
+  <p>混合测试四：2 × 3 = ____。（填空题）</p>
+  <p><input id="h"></p>
+</div>
+
+<div class="q">
+  <p>混合测试五：下列哪个是偶数？（单选题）</p>
+  <div class="opt" onclick="this.classList.toggle('done')">A. 1</div>
+  <div class="opt" onclick="this.classList.toggle('done')">B. 2</div>
+  <div class="opt" onclick="this.classList.toggle('done')">C. 3</div>
+  <div class="opt" onclick="this.classList.toggle('done')">D. 5</div>
+</div>
+
+</body>
+</html>

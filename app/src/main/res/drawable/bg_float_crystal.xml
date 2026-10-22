@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  水晶球质感：半透明蓝色实体 + 左上角白色高光 + 内外两层反光边。
+  真正的「毛玻璃」是窗口级的 setBackgroundBlurRadius（Android 12+），
+  这层 drawable 负责在不支持模糊的设备上也有水晶感。
+  所有图层都是 oval，保证外轮廓是正圆。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 1. 球体：自上而下的蓝色渐变，整体半透明 -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:angle="270"
+                android:endColor="#8C0F4FB8"
+                android:startColor="#B33D8BFF" />
+        </shape>
+    </item>
+
+    <!-- 2. 高光：左上角白色径向，模拟玻璃反光 -->
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:centerColor="#33FFFFFF"
+                android:centerX="0.34"
+                android:centerY="0.24"
+                android:endColor="#00FFFFFF"
+                android:gradientRadius="64%p"
+                android:startColor="#99FFFFFF"
+                android:type="radial" />
+        </shape>
+    </item>
+
+    <!-- 3. 内圈反光 -->
+    <item
+        android:bottom="2dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="oval">
+            <solid android:color="#00000000" />
+            <stroke
+                android:width="1dp"
+                android:color="#59FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 4. 外圈亮边 -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#00000000" />
+            <stroke
+                android:width="1.5dp"
+                android:color="#8CFFFFFF" />
+        </shape>
+    </item>
+</layer-list>

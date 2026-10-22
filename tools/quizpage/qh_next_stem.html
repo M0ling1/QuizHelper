@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>下一题题干测试：整组选项 + 下一题题干</title>
+<style>
+  body { margin: 0; padding: 14px; font: 22px/1.8 sans-serif; background: #f6f6f6; }
+  .q { background: #fff; padding: 16px; border-radius: 10px; margin-bottom: 14px; }
+  .opt { border: 2px solid #bbb; border-radius: 8px; padding: 14px; margin: 10px 0; }
+  #q1 .opt.done { background: #123a6b; border-color: #2e6fd8; color: #fff; }
+  #q2 .opt.done { background: #6b3a12; border-color: #d88b2e; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="q" id="q1">
+  <p>1. 下一题题干测试：下面哪个是水果？</p>
+  <div class="opt" onclick="pick(this,'q1')">A. 土豆</div>
+  <div class="opt" onclick="pick(this,'q1')">B. 苹果</div>
+  <div class="opt" onclick="pick(this,'q1')">C. 萝卜</div>
+  <div class="opt" onclick="pick(this,'q1')">D. 白菜</div>
+</div>
+
+<div style="height:140px"></div>
+
+<div class="q" id="q2">
+  <p>2. 下列哪些能被 2 整除？</p>
+  <div class="opt" onclick="pick(this,'q2')">A. 3</div>
+  <div class="opt" onclick="pick(this,'q2')">B. 4</div>
+  <div class="opt" onclick="pick(this,'q2')">C. 6</div>
+  <div class="opt" onclick="pick(this,'q2')">D. 7</div>
+</div>
+
+<script>
+function pick(el, q) { el.classList.toggle('done'); }
+</script>
+</body>
+</html>

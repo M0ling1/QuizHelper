@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  全屏日志（见 LogFullActivity）。和主界面那份列表的区别：
+    · 一份屏只放日志，没有状态卡和按钮来挤高度；
+    · 允许横屏 —— 无障碍/大模型那些行本来就长，竖屏一行要折三次；
+    · 正文能选中、能一次复制全部，方便贴给我或者在手机上直接看。
+  底色用深色：这份是拿来读长文本的，白底大字半小时眼睛就花了。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#12151A"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:id="@+id/tvFullTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#E8EAED"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:text="问答日志" />
+
+        <TextView
+            android:id="@+id/tvFullInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:textColor="#9AA0A6"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/btnFullClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_guide_btn"
+            android:paddingStart="14dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="6dp"
+            android:text="关闭"
+            android:textColor="@color/on_brand"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scrollFull"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp">
+
+        <TextView
+            android:id="@+id/tvFullBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="3dp"
+            android:paddingBottom="14dp"
+            android:textColor="#D7DADE"
+            android:textIsSelectable="true"
+            android:textSize="14sp"
+            android:typeface="monospace" />
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btnFullCopy"
+            style="@style/Btn"
+            android:layout_weight="1"
+            android:text="复制全部" />
+
+        <Button
+            android:id="@+id/btnFullSwitch"
+            style="@style/Btn"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="看运行日志" />
+
+        <Button
+            android:id="@+id/btnFullSize"
+            style="@style/Btn"
+            android:layout_marginStart="8dp"
+            android:text="字号" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>竖排四题 只露两题</title>
+<style>
+  body { margin: 0; padding: 12px; font: 20px/1.5 sans-serif; background: #f6f6f6; }
+  .q { margin-bottom: 26px; }
+  .stem { font-weight: bold; margin: 10px 0; }
+  .opt { display: block; padding: 18px 14px; margin: 10px 0;
+         background: #fff; border: 2px solid #ccc; border-radius: 10px; }
+  .opt.done { background: #b7f0b7; border-color: #2e7d32; }
+</style>
+</head>
+<body>
+<!-- 故意四题竖排，一屏只放得下两题出头：验「屏幕外的题不许被读、不许被答」 -->
+<div class="q">
+  <div class="stem">甲题：1 + 1 等于几？</div>
+  <div class="opt" onclick="pick(this)">A. 1</div>
+  <div class="opt" onclick="pick(this)">B. 2</div>
+  <div class="opt" onclick="pick(this)">C. 3</div>
+  <div class="opt" onclick="pick(this)">D. 4</div>
+</div>
+<div class="q">
+  <div class="stem">乙题：下面哪些是偶数？</div>
+  <div class="opt" onclick="pick(this)">A. 1</div>
+  <div class="opt" onclick="pick(this)">B. 2</div>
+  <div class="opt" onclick="pick(this)">C. 3</div>
+  <div class="opt" onclick="pick(this)">D. 4</div>
+</div>
+<div class="q">
+  <div class="stem">丙题：2 + 2 等于几？</div>
+  <div class="opt" onclick="pick(this)">A. 2</div>
+  <div class="opt" onclick="pick(this)">B. 3</div>
+  <div class="opt" onclick="pick(this)">C. 4</div>
+  <div class="opt" onclick="pick(this)">D. 5</div>
+</div>
+<div class="q">
+  <div class="stem">丁题：下面哪些是奇数？</div>
+  <div class="opt" onclick="pick(this)">A. 1</div>
+  <div class="opt" onclick="pick(this)">B. 2</div>
+  <div class="opt" onclick="pick(this)">C. 3</div>
+  <div class="opt" onclick="pick(this)">D. 4</div>
+</div>
+<script>
+function pick(el) { el.classList.toggle('done'); }
+</script>
+</body>
+</html>

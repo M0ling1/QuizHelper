@@ -1,0 +1,73 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.moling.quizhelper'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.moling.quizhelper"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+        resConfigs "zh", "en"
+
+        // ML Kit 的 .so 每个 ABI 11MB，只留真机用得上的 arm64，APK 从 48MB 降到 ~24MB
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+    }
+
+    signingConfigs {
+        rel {
+            storeFile rootProject.file('keystore.jks')
+            storePassword 'quizhelper'
+            keyAlias 'quizhelper'
+            keyPassword 'quizhelper'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.rel
+        }
+        debug {
+            signingConfig signingConfigs.rel
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packaging {
+        resources {
+            excludes += ['META-INF/*.kotlin_module', 'META-INF/DEPENDENCIES',
+                         'META-INF/LICENSE*', 'META-INF/NOTICE*', 'META-INF/AL2.0', 'META-INF/LGPL2.1']
+        }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // 离线中文 OCR（模型打包进 APK，无需 Google Play 服务）
+    implementation 'com.google.mlkit:text-recognition-chinese:16.0.1'
+
+    // Shizuku：免 root 提权执行 screencap / input tap / uiautomator
+    implementation 'dev.rikka.shizuku:api:13.1.5'
+    implementation 'dev.rikka.shizuku:provider:13.1.5'
+}

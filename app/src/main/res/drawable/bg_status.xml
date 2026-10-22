@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 主界面顶部的状态条：淡品牌色底，让「现在开着没」一眼能看到。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/status_bg" />
+    <corners android:radius="12dp" />
+</shape>

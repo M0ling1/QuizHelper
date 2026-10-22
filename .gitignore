@@ -1,0 +1,26 @@
+# Gradle / 构建产物
+.gradle/
+build/
+app/build/
+local.properties
+
+# 签名文件：绝不入库
+keystore.jks
+*.jks
+*.keystore
+*.apk
+*.aab
+
+# 本地调试产物（截图、UI dump、浏览器临时数据）
+tmp_*.png
+tmp_*/
+tree_cx.txt
+ui_cx.xml
+tools/promo_reading_backup.html
+*.log
+
+# IDE / 系统
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

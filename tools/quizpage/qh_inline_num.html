@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>题面编号填空：大题1 + 单选 + 屏外大题3</title>
+<style>
+  body { margin: 0; padding: 14px; font: 22px/1.8 sans-serif; background: #f6f6f6; }
+  .q { background: #fff; padding: 16px; border-radius: 10px; margin-bottom: 14px; }
+  input { width: 140px; font-size: 22px; padding: 6px; margin: 4px 8px 4px 0;
+          border: 2px solid #bbb; border-radius: 6px; }
+  .opt { border: 2px solid #bbb; border-radius: 8px; padding: 14px; margin: 10px 0; }
+  .opt.done { background: #173d17; border-color: #2e8b2e; }
+  .spacer { height: 100px; }
+  button { margin-top: 20px; width: 100%; padding: 18px; font-size: 22px;
+           border: 0; border-radius: 10px; background: #3d8bff; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="q">
+  <p>编号填空一：中国的首都是1.________，最长的河流是2.________。</p>
+  <p>1. <input id="a"></p>
+  <p>2. <input id="b"></p>
+</div>
+
+<div class="q">
+  <p>编号填空二：1 + 1 等于几？（单选题）</p>
+  <div class="opt" onclick="this.classList.toggle('done')">A. 1</div>
+  <div class="opt" onclick="this.classList.toggle('done')">B. 2</div>
+  <div class="opt" onclick="this.classList.toggle('done')">C. 3</div>
+  <div class="opt" onclick="this.classList.toggle('done')">D. 4</div>
+</div>
+
+<div class="spacer"></div>
+
+<div class="q">
+  <p>编号填空三：水的化学式是1.________，二氧化碳的化学式是2.________，氧气的化学式是3.________。</p>
+  <p>1. <input id="f"></p>
+  <p>2. <input id="g"></p>
+  <p>3. <input id="h"></p>
+</div>
+
+<button onclick="location.href='qh_inline_num_next.html'">下一题</button>
+
+</body>
+</html>

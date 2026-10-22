@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bubble"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/tvBubbleAnswer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#1A73E8"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:text="A" />
+
+    <TextView
+        android:id="@+id/tvBubbleExp"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:textColor="#222222"
+        android:textSize="12sp"
+        android:lineSpacingExtra="2dp"
+        android:text="解析" />
+</LinearLayout>

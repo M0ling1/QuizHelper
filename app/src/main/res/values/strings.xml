@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">答题助手</string>
+    <string name="settings">设置</string>
+    <string name="log_detail">日志详情</string>
+    <string name="log_full">全屏日志</string>
+    <string name="accessibility_desc">用于读取屏幕上的题目文字，并自动点击答案与「下一题」。不会上传任何数据。</string>
+    <string name="channel_service">运行状态</string>
+    <string name="channel_answer">答案解析</string>
+</resources>

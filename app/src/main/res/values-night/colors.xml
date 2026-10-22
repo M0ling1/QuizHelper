@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  深色模式。系统切到深色时 Android 会自动用这一份覆盖 values/colors.xml 里的同名颜色，
+  所以界面里只要引 @color/text_primary 这类名字，就自动跟着变。
+-->
+<resources>
+    <color name="page_bg">#101114</color>
+    <color name="card_bg">#1C1D21</color>
+    <color name="card_border">#24FFFFFF</color>
+    <color name="field_bg">#14FFFFFF</color>
+    <color name="text_primary">#E8E8EC</color>
+    <color name="text_secondary">#9BA1A9</color>
+    <color name="divider">#1FFFFFFF</color>
+    <color name="link">#7FB2FF</color>
+    <color name="status_bg">#1F4C8DF6</color>
+    <color name="code_bg">#14FFFFFF</color>
+</resources>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>标签拆开的 一屏两题</title>
+<style>
+  body { margin: 0; padding: 12px; font: 20px/1.5 sans-serif; background: #f6f6f6; }
+  .q { margin-bottom: 26px; }
+  .stem { font-weight: bold; margin: 10px 0; }
+  /* 关键：标签「A」自己一个节点，正文自己一个节点，行本身不加 onclick
+     —— 学习通随堂练习就是这种结构，整行宽/高度都套不上「选项条」。 */
+  .line { padding: 14px 4px; }
+  .lab { display: inline-block; min-width: 30px; padding: 6px; border: 2px solid #ccc;
+         border-radius: 50%; text-align: center; cursor: pointer; }
+  .lab.done { background: #b7f0b7; border-color: #2e7d32; }
+  .txt { margin-left: 10px; }
+</style>
+</head>
+<body>
+
+<div class="q">
+  <div class="stem">1. 1 + 1 等于几？（单选题）</div>
+  <div class="line"><span class="lab" onclick="pick(this)">A</span><span class="txt">1</span></div>
+  <div class="line"><span class="lab" onclick="pick(this)">B</span><span class="txt">2</span></div>
+  <div class="line"><span class="lab" onclick="pick(this)">C</span><span class="txt">3</span></div>
+  <div class="line"><span class="lab" onclick="pick(this)">D</span><span class="txt">4</span></div>
+</div>
+
+<div class="q">
+  <div class="stem">2. 下面哪些是偶数？（多选题）</div>
+  <div class="line"><span class="lab" onclick="pick(this)">A</span><span class="txt">1</span></div>
+  <div class="line"><span class="lab" onclick="pick(this)">B</span><span class="txt">2</span></div>
+  <div class="line"><span class="lab" onclick="pick(this)">C</span><span class="txt">3</span></div>
+  <div class="line"><span class="lab" onclick="pick(this)">D</span><span class="txt">4</span></div>
+</div>
+
+<script>
+function pick(el) { el.classList.toggle('done'); }
+</script>
+
+</body>
+</html>

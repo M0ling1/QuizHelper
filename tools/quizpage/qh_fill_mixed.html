@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>填空选择题混排</title>
+<style>
+  body { margin: 0; padding: 12px; font: 20px/1.6 sans-serif; background: #f6f6f6; }
+  .q { background: #fff; padding: 14px; border-radius: 10px; margin-bottom: 14px; }
+  .stem { font-weight: bold; margin: 6px 0; }
+  input { width: 120px; font-size: 20px; padding: 5px; margin: 0 5px;
+          border: 2px solid #bbb; border-radius: 6px; }
+  .opt { display: block; padding: 12px; margin: 6px 0; background: #fff;
+         border: 2px solid #ccc; border-radius: 8px; }
+  .opt.done { background: #b7f0b7; border-color: #2e7d32; }
+</style>
+</head>
+<body>
+
+<div class="q">
+  <div class="stem">1. 中国的首都是____。（填空题）</div>
+  <div><input id="a"></div>
+</div>
+
+<div class="q">
+  <div class="stem">2. 1 + 1 等于几？（单选题）</div>
+  <div class="opt" onclick="pick(this)">A. 1</div>
+  <div class="opt" onclick="pick(this)">B. 2</div>
+  <div class="opt" onclick="pick(this)">C. 3</div>
+  <div class="opt" onclick="pick(this)">D. 4</div>
+</div>
+
+<div class="q">
+  <div class="stem">3. 2 × 3 = ____。（填空题）</div>
+  <div><input id="b"></div>
+</div>
+
+<script>
+function pick(el) { el.classList.toggle('done'); }
+</script>
+</body>
+</html>

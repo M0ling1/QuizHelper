@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  无障碍被系统关掉时压在屏幕上的引导卡（见 FloatingService.showA11yGuide）。
+  为什么不是 toast / 通知：toast 两秒就没了，通知在这台机器上也是被拒的（见 README），
+  用户此刻正盯着学习通，一抬头什么都看不见 —— 他的感受就是「又卡了」。
+  这张卡一直挂着，上面那个按钮一点就进无障碍设置页；他在设置页里把开关打开的那一刻，
+  卡片自己收起来、悬浮球变回绿的「待启动」（见 FloatingService.onA11yConnected）。
+
+  颜色全部写死：这是压在别的 App 上面的窗口，用的是应用主题，
+  而应用有日夜两套色，写死才不会被主题带到看不清的组合上（答案气泡同一个处理）。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_guide_card"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvGuideTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="无障碍服务没打开，助手读不到屏幕"
+        android:textColor="@color/err"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvGuideBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:lineSpacingExtra="3dp"
+        android:text="设置 → 无障碍 → 已下载的应用 → 答题助手 → 打开开关。\n打开之后这张卡会自己消失，回题目上点一下悬浮球就能接着答。"
+        android:textColor="#333333"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnGuideOk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chip"
+            android:paddingStart="14dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="7dp"
+            android:text="知道了"
+            android:textColor="#444444"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/btnGuideGo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_guide_btn"
+            android:paddingStart="16dp"
+            android:paddingTop="7dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="7dp"
+            android:text="去打开设置"
+            android:textColor="@color/on_brand"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>
