@@ -8,7 +8,9 @@
 
 ## 一、安装
 
-手机连上电脑后：
+直接下载：[QuizHelper-1.0-arm64.apk](https://github.com/M0ling1/QuizHelper/releases/download/v1.0/QuizHelper-1.0-arm64.apk)（arm64-v8a，18 MB）
+
+或者手机连上电脑后：
 
 ```bash
 adb install -r app/build/outputs/apk/release/app-release.apk
